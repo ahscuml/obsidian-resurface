@@ -1,0 +1,240 @@
+/* Resurface 样式：极简、克制、扁平
+   与产品哲学一致——不打扰、不喧哗。 */
+
+/* 侧栏根容器：纵向居中 */
+.resurface-root {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100%;
+  padding: 1rem 1.25rem;
+  box-sizing: border-box;
+}
+
+/* Cue 区域：标题 + TLDR + 按钮 */
+.resurface-cue {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.resurface-cue h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.resurface-cue blockquote {
+  border-left: 2px solid var(--background-modifier-border);
+  padding: 0 0 0 0.75rem;
+  margin: 0.25rem 0 0.75rem 0;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.55;
+  font-style: normal;
+}
+
+.resurface-cue p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+/* 扁平但有边界的按钮：能看出是可点击对象，但不立体 */
+.resurface-primary-btn,
+.resurface-secondary-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 2.25rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--background-secondary) !important;
+  border: 1px solid var(--background-modifier-border) !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  font-family: inherit;
+  text-align: center;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.resurface-primary-btn {
+  background: var(--interactive-accent) !important;
+  border-color: var(--interactive-accent) !important;
+  color: var(--text-on-accent);
+  font-weight: 500;
+}
+
+.resurface-primary-btn:hover {
+  background: var(--interactive-accent-hover) !important;
+  border-color: var(--interactive-accent-hover) !important;
+}
+
+.resurface-secondary-btn {
+  background: transparent !important;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+.resurface-secondary-btn:hover {
+  background: var(--background-modifier-hover) !important;
+  color: var(--text-normal);
+}
+
+/* 评分按钮行：分段式按钮，整体像一个被分隔的按钮条 */
+.resurface-rating-row {
+  display: flex;
+  gap: 0;
+  margin: 0.75rem 0 0.25rem 0;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.resurface-rating-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.25rem;
+  padding: 0.55rem 0.5rem;
+  background: var(--background-secondary) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  font-weight: 500;
+  font-family: inherit;
+  color: var(--text-normal);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+/* 相邻评分按钮之间一条细分隔线 */
+.resurface-rating-btn + .resurface-rating-btn {
+  border-left: 1px solid var(--background-modifier-border) !important;
+}
+
+.resurface-rating-btn.again {
+  color: var(--text-muted);
+}
+
+.resurface-rating-btn.again:hover {
+  background: var(--background-modifier-hover) !important;
+  color: var(--text-normal);
+}
+
+.resurface-rating-btn.good {
+  background: var(--interactive-accent) !important;
+  color: var(--text-on-accent);
+}
+
+.resurface-rating-btn.good:hover {
+  background: var(--interactive-accent-hover) !important;
+}
+
+.resurface-rating-btn:hover {
+  background: var(--background-modifier-hover) !important;
+}
+
+/* 进度文字：极简的"1/5" */
+.resurface-progress {
+  font-size: 0.78rem;
+  color: var(--text-faint);
+  margin-bottom: 0.5rem;
+  text-align: center;
+  letter-spacing: 0.05em;
+}
+
+/* 空状态（无待复习 / 已完成 / 首次安装） */
+.resurface-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.4rem;
+}
+
+.resurface-empty .emoji {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+  line-height: 1;
+}
+
+.resurface-empty p {
+  margin: 0;
+  color: var(--text-normal);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.resurface-empty .setting-item-description {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+/* 底部统计 */
+.resurface-stats {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--background-modifier-border);
+  font-size: 0.8rem;
+  color: var(--text-faint);
+  line-height: 1.7;
+  text-align: center;
+}
+
+.resurface-stats .line {
+  display: block;
+}
+
+/* ─── 设置页：复习目录白名单 ─── */
+
+.resurface-path-empty {
+  color: var(--text-faint);
+  font-size: 0.85rem;
+  padding: 0.5rem 0 0.75rem 0;
+}
+
+.resurface-path-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.25rem 0 0.75rem 0;
+}
+
+.resurface-path-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: var(--background-secondary);
+  color: var(--text-normal);
+  font-size: 0.82rem;
+  border: 1px solid var(--background-modifier-border);
+}
+
+.resurface-path-tag-text {
+  line-height: 1.2;
+}
+
+.resurface-path-tag-remove {
+  cursor: pointer;
+  color: var(--text-faint);
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0 0.15rem;
+  user-select: none;
+}
+
+.resurface-path-tag-remove:hover {
+  color: var(--text-error);
+}

@@ -1,0 +1,22 @@
+# Node
+node_modules/
+
+# Build output
+main.js
+*.js.map
+
+# OS
+.DS_Store
+
+# Local env
+.env
+.env.local
+
+# Editor
+.idea/
+.vscode/
+.claude/
+
+# Logs
+*.log
+npm-debug.log*

@@ -1,0 +1,10 @@
+{
+  "id": "obsidian-resurface",
+  "name": "Resurface",
+  "version": "0.1.0",
+  "minAppVersion": "1.4.0",
+  "description": "让你在 Obsidian 里写过的笔记，按科学的节奏重新找到你。基于 FSRS 的笔记复活工具。",
+  "author": "",
+  "authorUrl": "",
+  "isDesktopOnly": false
+}
