@@ -206,6 +206,8 @@ export class SideBarView extends ItemView {
 
     const box = container.createDiv({ cls: "resurface-cue" });
     box.createEl("h3", { text: this.currentCue.title });
+    // 评分阶段仍展示 tldr，和 cue 态保持一致
+    box.createEl("blockquote", { text: this.currentCue.tldr });
 
     const mode = this.plugin.storage.data.settings.ratingMode;
     const row = box.createDiv({ cls: "resurface-rating-row" });
@@ -258,6 +260,7 @@ export class SideBarView extends ItemView {
 
     const box = container.createDiv({ cls: "resurface-cue" });
     box.createEl("h3", { text: this.currentCue.title });
+    box.createEl("blockquote", { text: this.currentCue.tldr });
     box.createEl("p", {
       text: "已记录。可以继续编辑这条笔记，或者进入下一条。",
       cls: "setting-item-description",

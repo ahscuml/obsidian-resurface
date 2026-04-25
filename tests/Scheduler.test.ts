@@ -134,6 +134,50 @@ describe("Scheduler", () => {
     expect(count).toBe(10);
   });
 
+  it("dailyLimit 是每日硬预算：已复习数计入预算", () => {
+    // 30 条全部到期，dailyLimit=15
+    // 假装 session 已经复习了 10 条 → 今天还能看 5 条（不是 15）
+    const notes: Record<string, NoteState> = {};
+    for (let i = 0; i < 30; i++) notes[`n${i}`] = makeNote();
+    const { scheduler, storage } = makeEnv(notes);
+    storage.data.settings.dailyLimit = 15;
+
+    const reviewed = new Set<string>();
+    for (let i = 0; i < 10; i++) reviewed.add(`n${i}`);
+
+    const queue = scheduler.getTodayQueue(reviewed, now);
+    expect(queue.length).toBe(5); // 15 - 10 = 5，而不是又给 15
+
+    const count = scheduler.countDueToday(reviewed, now);
+    expect(count).toBe(5);
+  });
+
+  it("预算耗尽（已复习数 ≥ dailyLimit）时返回空队列", () => {
+    const notes: Record<string, NoteState> = {};
+    for (let i = 0; i < 30; i++) notes[`n${i}`] = makeNote();
+    const { scheduler, storage } = makeEnv(notes);
+    storage.data.settings.dailyLimit = 15;
+
+    const reviewed = new Set<string>();
+    for (let i = 0; i < 15; i++) reviewed.add(`n${i}`);
+
+    expect(scheduler.getTodayQueue(reviewed, now).length).toBe(0);
+    expect(scheduler.countDueToday(reviewed, now)).toBe(0);
+  });
+
+  it("exclude 计入预算（reviewedSet 同时承载评分和 exclude 两类）", () => {
+    // ReviewSession.markExcluded() 也往 reviewedSet 里塞，
+    // 所以这里和上面的测试等价——只要 path 在 Set 里就扣预算。
+    const notes: Record<string, NoteState> = {};
+    for (let i = 0; i < 20; i++) notes[`n${i}`] = makeNote();
+    const { scheduler, storage } = makeEnv(notes);
+    storage.data.settings.dailyLimit = 10;
+
+    // 模拟：2 条打过分 + 3 条 exclude 了 = 共 5 条占用预算
+    const reviewed = new Set(["n0", "n1", "n2", "n3", "n4"]);
+    expect(scheduler.getTodayQueue(reviewed, now).length).toBe(5); // 10 - 5
+  });
+
   it("白名单过滤：只保留匹配目录的笔记", () => {
     const { scheduler, storage } = makeEnv({
       "Zettels/a.md": makeNote(),

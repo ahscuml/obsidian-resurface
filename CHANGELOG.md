@@ -2,6 +2,27 @@
 
 Resurface 版本变更记录。遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 格式。
 
+## [0.1.1] - 2026-04-25
+
+### Fixed · 修复
+
+- **每日上限被突破**：`Scheduler.getTodayQueue()` 把 `dailyLimit` 当成了「每次取多少条」而非「当日硬预算」，导致 `countDueToday` 和实际可复习数不一致，用户可以一直复习直到候选池耗尽。修复为：每日预算 = `dailyLimit - 已消耗`，评分和「不再复习」都计入已消耗。现象表现为右侧栏进度条分母随复习进行不断增大。
+- **评分阶段 TLDR 消失**：`renderRating()` / `renderWaitNext()` 只画了标题，丢了 cue 态的 blockquote。现已在复习全程（cue → rating → waitNext）统一保留 TLDR。
+- **长 TLDR 不受限制**：`CueExtractor` 的 5 级 fallback 只在最后一级应用 `tldrFallbackLength`，frontmatter / callout / H2 段落 / 第一段来源的 TLDR 会原样输出，导致侧栏被超长摘要撑破。现改为在 `extract()` 出口统一截断。
+- **标题被顶部挤出**：`.resurface-root` 的 `justify-content: center` 在内容超高时会让顶部溢出不可见。改用 `safe center` + `overflow-y: auto`；标题加 `word-break: break-word` 防止超长无空格标题自己撑破布局。
+
+### Changed · 变更
+
+- `tldrFallbackLength` 默认从 **200 → 100**；设置项文案改为「TLDR 最大显示字符数」（原描述为"底层 fallback 字符数"，与实际作用不符）。已有用户的 data.json 中的旧值 200 仍然保留，需要手动调整或等 migration。
+
+### Tests
+
+- 新增 3 个 Scheduler 测试（每日硬预算 / 预算耗尽 / exclude 计入预算）
+- 新增 2 个 CueExtractor 测试（长 TLDR 截断 / 短 TLDR 不加省略号）
+- 总计 **53 个测试全绿**（48 → 53）
+
+---
+
 ## [0.1.0] - 2026-04-21
 
 ### 🎉 MVP · 首个可用版本

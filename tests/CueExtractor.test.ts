@@ -103,4 +103,22 @@ tldr: 这是摘要
     );
     expect(title).toBe("some-note");
   });
+
+  it("长 TLDR 会被统一截断到 tldrFallbackLength", () => {
+    const longText = "这是一段很长的摘要".repeat(50); // 远超默认 100
+    const content = `---\ntldr: ${longText}\n---\n\n# 标题\n\n正文`;
+    const { tldr } = CueExtractor.extract("x.md", content, {
+      ...s,
+      tldrFallbackLength: 30,
+    });
+    expect(tldr.length).toBeLessThanOrEqual(31); // 30 + 省略号
+    expect(tldr.endsWith("…")).toBe(true);
+  });
+
+  it("短 TLDR 不加省略号", () => {
+    const content = `---\ntldr: 短摘要\n---\n\n# 标题`;
+    const { tldr } = CueExtractor.extract("x.md", content, s);
+    expect(tldr).toBe("短摘要");
+    expect(tldr.endsWith("…")).toBe(false);
+  });
 });

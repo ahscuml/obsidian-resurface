@@ -126,8 +126,8 @@ export class ResurfaceSettingTab extends PluginSettingTab {
       );
 
     new Setting(advDetails)
-      .setName("TLDR 底层 fallback 字符数")
-      .setDesc("笔记没有任何 TLDR 标记时，用开头多少字作为摘要")
+      .setName("TLDR 最大显示字符数")
+      .setDesc("侧栏展示 TLDR 时的统一上限；超过会截断加省略号")
       .addSlider((slider) =>
         slider
           .setLimits(50, 500, 10)

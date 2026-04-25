@@ -28,18 +28,26 @@ export class CueExtractor {
   ): Cue {
     const { frontmatter, body } = splitFrontmatter(rawContent);
     const title = extractTitle(path, body);
-    const tldr =
+    const raw =
       fromFrontmatter(frontmatter, settings.tldrFieldName) ??
       fromTldrCallout(body) ??
       fromTldrHeading(body) ??
       fromFirstParagraph(body) ??
       fromHeadingN(body, settings.tldrFallbackLength) ??
       "(空笔记)";
+    // 统一截断：无论 tldr 来自哪个 fallback 级别，
+    // 都限制到 tldrFallbackLength 字符以内，避免侧栏被长 tldr 挤满。
+    const tldr = truncate(raw, settings.tldrFallbackLength);
     return { title, tldr };
   }
 }
 
 // ─── 辅助 ──────────────────────────
+
+function truncate(s: string, n: number): string {
+  if (n <= 0) return s;
+  return s.length > n ? s.slice(0, n) + "…" : s;
+}
 
 function splitFrontmatter(content: string): {
   frontmatter: Record<string, string> | null;

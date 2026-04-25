@@ -1,12 +1,14 @@
 /* Resurface 样式：极简、克制、扁平
    与产品哲学一致——不打扰、不喧哗。 */
 
-/* 侧栏根容器：纵向居中 */
+/* 侧栏根容器：纵向居中；内容超过容器时顶对齐 + 可滚动，避免标题被切 */
 .resurface-root {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  /* safe center：内容超过容器高度时，退化为 flex-start，不会让顶部被挤出视口 */
+  justify-content: safe center;
   min-height: 100%;
+  overflow-y: auto;
   padding: 1rem 1.25rem;
   box-sizing: border-box;
 }
@@ -23,6 +25,8 @@
   font-size: 1.05rem;
   font-weight: 600;
   line-height: 1.4;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .resurface-cue blockquote {

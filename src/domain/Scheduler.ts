@@ -29,10 +29,15 @@ export class Scheduler {
    * 取今日待复习列表（未复习的部分）。
    * 过滤：路径白名单、非排除、nextReview <= now、今日未复习。
    * 排序：R 值升序。
-   * 截断：settings.dailyLimit 条。
+   * 预算：dailyLimit 是**每日硬上限**。已经出现在 reviewedSet 里的（打过分的 / exclude 的）算已消耗预算。
+   *
+   * 举例：dailyLimit=15，已复习 10 条，候选池还有 20 条 → 返回 5 条（预算只剩 5）。
    */
   getTodayQueue(alreadyReviewedPaths: Set<NotePath>, now: Date = new Date()): QueuedNote[] {
     const settings = this.storage.data.settings;
+    const budget = Math.max(0, settings.dailyLimit - alreadyReviewedPaths.size);
+    if (budget === 0) return [];
+
     const dayStart = getDayStart(now, settings.dayBoundaryHour);
 
     const candidates: QueuedNote[] = [];
@@ -57,15 +62,21 @@ export class Scheduler {
     // R 升序（越小越急）
     candidates.sort((a, b) => a.retrievability - b.retrievability);
 
-    return candidates.slice(0, settings.dailyLimit);
+    return candidates.slice(0, budget);
   }
 
-  /** 今日总共有多少条到期（忽略上限），用于展示数字 */
+  /**
+   * 今日还将出现多少条（受 dailyLimit 剩余预算限制）。
+   * 用于 ribbon 角标与侧栏进度条的分母计算，保证和 getTodayQueue 的发放节奏一致。
+   */
   countDueToday(
     alreadyReviewedPaths: Set<NotePath>,
     now: Date = new Date(),
   ): number {
     const settings = this.storage.data.settings;
+    const budget = Math.max(0, settings.dailyLimit - alreadyReviewedPaths.size);
+    if (budget === 0) return 0;
+
     const dayStart = getDayStart(now, settings.dayBoundaryHour);
     let count = 0;
     for (const [path, note] of Object.entries(this.storage.data.notes)) {
@@ -77,8 +88,7 @@ export class Scheduler {
       if (note.lastReview && new Date(note.lastReview) >= dayStart) continue;
       count++;
     }
-    // 截断到 dailyLimit（展示层只关心今天会出现多少）
-    return Math.min(count, settings.dailyLimit);
+    return Math.min(count, budget);
   }
 
   /** 字符数低于阈值的笔记算作"短笔记"，不进入复习池。

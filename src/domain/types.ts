@@ -129,7 +129,7 @@ export const DEFAULT_SETTINGS: Settings = {
 
   desiredRetention: 0.9,
   tldrFieldName: "tldr",
-  tldrFallbackLength: 200,
+  tldrFallbackLength: 100,
   showStreak: true,
 
   editThresholdAbsolute: 50,
