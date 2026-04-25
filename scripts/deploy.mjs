@@ -56,7 +56,9 @@ async function exists(path) {
 async function deploy() {
   const env = await loadEnv();
   if (!env || !env.VAULT_PATH) {
-    throw new Error("VAULT_PATH 未配置（.env.local 不存在或缺少 VAULT_PATH）");
+    // 没配置 VAULT_PATH 视为"本地没设置，静默跳过"。
+    // CI 环境本来就不需要部署到 vault，跳过即可。
+    return;
   }
 
   const vaultPath = env.VAULT_PATH;
