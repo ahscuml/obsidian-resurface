@@ -66,7 +66,14 @@ export default class ResurfacePlugin extends Plugin {
     // 5. Settings tab
     this.addSettingTab(new ResurfaceSettingTab(this.app, this));
 
-    // 6. 首次加载：等 workspace 准备好后再扫描 vault
+    // 6. 跨日/聚焦时自动刷新：
+    //    - active-leaf-change: 用户切换到侧栏 tab / 侧栏重新激活
+    //    - window focus: Obsidian 窗口从后台切回前台（跨日常见场景：昨天没关，今天切回）
+    //    - visibilitychange: 页面从不可见变可见（electron/tab 场景互补）
+    //    所有事件共用防抖，避免短时间内重复计算。
+    this.registerAutoRefresh();
+
+    // 7. 首次加载：等 workspace 准备好后再扫描 vault
     this.app.workspace.onLayoutReady(async () => {
       await this.vaultWatcher.backfillExistingNotes();
       this.refreshBadge();
@@ -81,7 +88,55 @@ export default class ResurfacePlugin extends Plugin {
 
   async onunload() {
     console.log("[Resurface] unloading");
-    // Obsidian 会自动清理用 registerEvent/registerView 注册的内容
+    // Obsidian 会自动清理用 registerEvent/registerView/registerDomEvent 注册的内容
+    if (this.refreshDebounceTimer) {
+      clearTimeout(this.refreshDebounceTimer);
+      this.refreshDebounceTimer = null;
+    }
+  }
+
+  // ─── 自动刷新 ──────────────────────────
+
+  private refreshDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+  /**
+   * 监听焦点/激活类事件，触发侧栏刷新。共用 250ms 防抖避免重复触发。
+   * 只有侧栏真的存在且 session 检测到跨日或队列过时时才重算。
+   */
+  private registerAutoRefresh(): void {
+    const schedule = () => this.scheduleAutoRefresh();
+
+    // 用户在 Obsidian 内部切 leaf（比如从编辑器 tab 切到侧栏）
+    this.registerEvent(
+      this.app.workspace.on("active-leaf-change", () => schedule()),
+    );
+
+    // Obsidian 窗口重新获得焦点（从其它 App / 后台切回）
+    this.registerDomEvent(window, "focus", () => schedule());
+
+    // 页面可见性变化（electron 最小化恢复、浏览器 tab 切换等）
+    this.registerDomEvent(document, "visibilitychange", () => {
+      if (document.visibilityState === "visible") schedule();
+    });
+  }
+
+  private scheduleAutoRefresh(): void {
+    if (this.refreshDebounceTimer) clearTimeout(this.refreshDebounceTimer);
+    this.refreshDebounceTimer = setTimeout(() => {
+      this.refreshDebounceTimer = null;
+      this.doAutoRefresh();
+    }, 250);
+  }
+
+  private doAutoRefresh(): void {
+    // 主动推进 session 的日期边界检测，确保跨日时 reviewedSet 已清空。
+    // 否则 rating/waitNext 态不会触发 advance()，session 可能仍带着昨日残留，
+    // 导致 badge 显示的数字偏低（昨日已复习 10 条 + 今日上限 15 = 错误的 5 条剩余）。
+    this.session.refresh();
+    this.refreshBadge();
+    // 侧栏的 refresh() 内部有守卫：只在 cue/initial/completed 态重算，
+    // 不会打断用户正在进行的评分流程。
+    void this.refreshSideBar();
   }
 
   // ─── Side bar ──────────────────────────

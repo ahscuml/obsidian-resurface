@@ -2,6 +2,12 @@
 
 Resurface 版本变更记录。遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 格式。
 
+## [Unreleased]
+
+### Fixed · 修复
+
+- **跨日/聚焦时侧栏不刷新**：之前只有在用户主动点 ribbon、切到/打开侧栏 view、评分后推进、或笔记文件变化时才会触发 `advance()` / `refresh()`。如果用户昨天没关 Obsidian，今天切回窗口时看到的仍是昨日冻结的画面（队列、进度、badge 都不更新）。现在监听 `workspace.active-leaf-change` / `window.focus` / `document.visibilitychange` 三个事件，共用 250ms 防抖，聚焦时自动 `session.refresh()` + 刷新 badge + 刷新侧栏（rating/waitNext 态仍受守卫保护，不会打断评分流程）。
+
 ## [0.1.1] - 2026-04-25
 
 ### Fixed · 修复
